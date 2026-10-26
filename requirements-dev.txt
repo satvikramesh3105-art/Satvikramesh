@@ -1,0 +1,3 @@
+-r requirements.txt
+-r requirements-packet-sensor.txt
+pytest>=8.0,<10.0

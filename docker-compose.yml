@@ -1,0 +1,98 @@
+services:
+  sentinel:
+    build: .
+    image: sentinel-app:local
+    expose:
+      - "5000"
+    environment:
+      SENTINEL_DB: /data/sentinel-security.sqlite3
+      SENTINEL_ANOMALY_MODEL: /data/anomaly-model.joblib
+      SENTINEL_TRUST_PROXY: "1"
+      MINIO_ENDPOINT: minio:9000
+      MINIO_PUBLIC_ENDPOINT: localhost:8080
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:?Run .\setup.ps1 first to create local MinIO credentials}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:?Run .\setup.ps1 first to create local MinIO credentials}
+      MINIO_BUCKET: sentinel-vault
+    volumes:
+      - sentinel_data:/data
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/api/health', timeout=2)"]
+      interval: 20s
+      timeout: 3s
+      retries: 3
+  minio:
+    image: minio/minio:RELEASE.2025-07-23T15-54-02Z
+    command: ["server", "/data", "--address", ":9000", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Run .\setup.ps1 first to create local MinIO credentials}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Run .\setup.ps1 first to create local MinIO credentials}
+      MINIO_BROWSER: "off"
+    expose:
+      - "9000"
+    volumes:
+      - sentinel_vault:/data
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9000/minio/health/live >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+  edge:
+    image: nginx:1.27.5-alpine
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      sentinel:
+        condition: service_healthy
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/api/health || exit 1"]
+      interval: 20s
+      timeout: 3s
+      retries: 3
+  backup:
+    build: .
+    image: sentinel-app:local
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        while true; do
+          if [ -f /data/sentinel-security.sqlite3 ] && [ -f /data/audit.sqlite3 ]; then
+            if python data_backup.py --create --backup-root /data/backups --security-db /data/sentinel-security.sqlite3 --audit-db /data/audit.sqlite3; then
+              find /data/backups -mindepth 1 -maxdepth 1 -type d -mtime +14 -exec rm -rf {} +
+              sleep 86400
+            else
+              echo "Sentinel snapshot failed; retrying in one hour" >&2
+              sleep 3600
+            fi
+          else
+            echo "Waiting for Sentinel databases before first snapshot" >&2
+            sleep 30
+          fi
+        done
+    environment:
+      SENTINEL_DB: /data/sentinel-security.sqlite3
+    volumes:
+      - sentinel_data:/data
+    depends_on:
+      sentinel:
+        condition: service_healthy
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  sentinel_data:
+  sentinel_vault:

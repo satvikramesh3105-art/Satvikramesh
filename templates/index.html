@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <title>Sentinel | Security Demo</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='security.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='vault.css') }}">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" href="#top" aria-label="Sentinel home"><span class="brand-mark">S</span><span>sentinel<span class="brand-dot">.</span><small>SECURITY LAB</small></span></a>
+      <div class="side-label">WORKSPACE</div>
+      <a class="nav-item active" href="#overview"><span>◫</span> Overview</a>
+      <a class="nav-item" href="#live-monitor"><span>⌖</span> Live monitor</a>
+      <a class="nav-item" href="#file-vault"><span>▣</span> File vault</a>
+      <a class="nav-item" href="#traffic-shield"><span>⌁</span> Traffic shield <span class="demo-pill">DEMO</span></a>
+      <a class="nav-item" href="#audit-log"><span>≡</span> Audit log</a>
+      <div class="sidebar-bottom"><div class="secure-indicator"><i></i><span><b>Local demo mode</b><small>Browser-side encryption</small></span></div><p>Sentinel Security Lab<br>Educational prototype · v1.0</p></div>
+    </aside>
+    <main id="top">
+      <header class="topbar"><div class="crumb">Workspace <span>/</span> Overview</div><div class="top-actions"><span class="environment"><i></i> DEMONSTRATION</span><div class="avatar">SL</div></div></header>
+      <section class="content" id="overview">
+        <div class="welcome"><div><div class="eyebrow"><span class="spark">✦</span> SECURITY OPERATIONS CENTER</div><h1>Good day. <span>Your workspace is ready.</span></h1><p>Explore the core protection workflow in a safe, self-contained demo.</p></div><div class="date-chip"><span>●</span> SYSTEM OPERATIONAL</div></div>
+        <div class="notice"><span class="notice-icon">i</span><div><b>Defensive prototype · scoped HTTP monitoring</b><p>Incoming web requests are inspected for configured signatures and rate anomalies. This is not a universal IDS or public-internet DDoS defense.</p></div><button class="notice-close" aria-label="Dismiss notice">×</button></div>
+        <div class="section-heading"><div><h2>Security overview</h2><p>A live snapshot of this demonstration workspace.</p></div><span class="updated"><i></i> LIVE DEMO</span></div>
+        <div class="metrics">
+          <article class="metric-card"><div class="metric-top"><span class="metric-icon blue">▣</span><span class="metric-trend">CLIENT-SIDE</span></div><div class="metric-name">File encryption</div><div class="metric-value">AES-GCM <small>256-bit</small></div><div class="metric-foot">Plaintext and passphrase stay here</div></article>
+          <article class="metric-card"><div class="metric-top"><span class="metric-icon violet">⌁</span><span class="metric-trend">LIVE HTTP</span></div><div class="metric-name">Request monitor</div><div class="metric-value" id="live-request-count">0 <small>/ 10 sec</small></div><div class="metric-foot" id="live-block-count">Persistent rules and temporary IP blocks</div></article>
+          <article class="metric-card"><div class="metric-top"><span class="metric-icon green">✓</span><span class="metric-trend">VERIFIED</span></div><div class="metric-name">Audit integrity</div><div class="metric-value" id="ledger-status">Checking…</div><div class="metric-foot" id="ledger-count">Hash-linked local event chain</div></article>
+        </div>
+        <section class="panel monitor-panel" id="live-monitor"><div class="panel-title"><span class="panel-symbol violet">⌖</span><div><h3>Live HTTP threat monitor</h3><p>Observed requests, signature alerts, and temporary blocks. Payloads are not retained.</p></div><span class="live-tag"><i></i> INSPECTING</span></div><div class="monitor-stats"><div><small>REQUESTS · <span id="monitor-window-label">10 SEC</span></small><b id="monitor-requests">0</b></div><div><small>BLOCKED · 10 MIN</small><b id="monitor-blocked">0</b></div><div><small>ACTIVE IP BLOCKS</small><b id="monitor-active-blocks">0</b></div><div><small>DETECTION EVENTS</small><b id="monitor-total-events">0</b></div><div><small>ML BASELINE</small><b id="anomaly-model-status">Not configured</b></div></div><div class="audit-table-wrap"><table><thead><tr><th>TIME</th><th>SOURCE</th><th>RULE</th><th>REQUEST</th><th>ACTION</th></tr></thead><tbody id="security-event-rows"><tr><td colspan="5" class="empty-row">No HTTP threats detected. Safe test patterns are covered in the automated suite.</td></tr></tbody></table></div><div class="audit-disclaimer">Inspects HTTP paths, query strings, selected headers, JSON/forms, and request rate only. The separate passive PCAP/interface sensor is alert-only; neither tool detects all attacks or stops packet-layer floods.</div></section>
+        <div class="section-heading tools-heading"><div><h2>Security tools</h2><p>Run through the key capabilities of Sentinel.</p></div></div>
+        <div class="tools-grid">
+          <section class="panel file-panel" id="file-vault"><div class="panel-title"><span class="panel-symbol blue">▣</span><div><h3>Private file vault</h3><p>Encrypt or decrypt a file on this device.</p></div><span class="local-tag">CLIENT-SIDE</span></div>
+            <label class="drop-zone" id="drop-zone" for="file-input"><span class="upload-icon">↑</span><b>Choose a file to get started</b><small>or drag and drop · up to 50 MB recommended</small><span class="file-name" id="file-name">No file selected</span></label><input id="file-input" type="file" hidden>
+            <div class="field-row"><label for="passphrase">Passphrase</label><span class="field-hint">Never sent to the server</span></div><div class="pass-wrap"><input id="passphrase" type="password" autocomplete="new-password" placeholder="Enter a strong passphrase"><button id="toggle-pass" type="button" aria-label="Show passphrase">◉</button></div>
+            <div class="button-row"><button class="button primary" id="encrypt-btn" type="button">Encrypt file <span>↗</span></button><button class="button secondary" id="decrypt-btn" type="button">Decrypt file</button><button class="button secondary" id="merkle-create-btn" type="button">Create Merkle manifest</button></div><div class="button-row integrity-row"><button class="button text-button" id="manifest-select-btn" type="button">Choose saved manifest</button><span class="field-hint" id="manifest-name">No manifest selected</span><button class="button text-button" id="merkle-verify-btn" type="button">Verify file integrity</button></div><input id="manifest-input" type="file" accept="application/json,.json" hidden><div class="button-row integrity-row"><button class="button text-button" id="backup-select-btn" type="button">Choose trusted backup</button><span class="field-hint" id="backup-name">No backup selected</span><button class="button text-button" id="recover-btn" type="button">Verify &amp; download backup</button></div><input id="backup-input" type="file" hidden><div class="cloud-transfer"><label for="presigned-put-url">Optional cloud upload URL</label><input id="presigned-put-url" type="url" autocomplete="off" spellcheck="false" placeholder="Paste provider-issued HTTPS pre-signed PUT URL"><p>Uploads the encrypted artifact directly from this browser; never paste cloud credentials. Signed URLs work like temporary bearer credentials.</p><button class="button secondary full" id="cloud-upload-btn" type="button">Upload encrypted artifact directly</button></div><div class="result-box" id="file-result" aria-live="polite">Choose a file, then encrypt it or create a Merkle manifest. Both operate locally in your browser.</div>
+            <div class="cloud-transfer local-vault"><b>Local encrypted vault · MinIO</b><p>Only the encrypted file and its integrity manifest are uploaded directly from this browser. Flask never receives file bytes or passphrases. This local vault has no user accounts; use it only on this machine.</p><button class="button secondary full" id="vault-upload-btn" type="button">Upload encrypted file &amp; manifest</button><div class="vault-status" id="vault-status" aria-live="polite">Checking local vault…</div><div class="vault-toolbar"><b>Stored encrypted files</b><button class="button text-button" id="vault-refresh-btn" type="button">Refresh</button></div><div class="vault-list" id="vault-list"><span class="field-hint">Loading…</span></div></div>
+          </section>
+          <section class="panel shield-panel" id="traffic-shield"><div class="panel-title"><span class="panel-symbol violet">⌁</span><div><h3>Safe traffic simulation</h3><p>Demonstrate a rate-limit decision without generating attack traffic.</p></div><span class="demo-tag">SIMULATED</span></div>
+            <div class="shield-visual"><div class="shield-orbit orbit-one"></div><div class="shield-orbit orbit-two"></div><div class="shield-core">⌁</div><div class="pulse pulse-one"></div><div class="pulse pulse-two"></div></div>
+            <div class="rate-row"><span>Incoming demo requests</span><b>Rate limit <span>12 / 10 sec</span></b></div><div class="range-wrap"><input id="request-count" type="range" min="1" max="50" value="20"><span><b id="request-count-label">20</b> requests</span></div><button class="button primary full" id="simulate-btn" type="button">Run safe simulation <span>→</span></button><div class="shield-result" id="shield-result" aria-live="polite"><span class="shield-status-dot"></span><span>Ready to simulate · no external traffic will be sent</span></div><div class="mini-stats"><div><small>ALLOWED</small><b id="allowed-count">—</b></div><div><small>SIMULATED BLOCKED</small><b id="blocked-count">—</b></div><div><small>WINDOW</small><b>10 sec</b></div></div></section>
+        </div>
+        <section class="panel audit-panel" id="audit-log"><div class="panel-title audit-title"><span class="panel-symbol green">≡</span><div><h3>Recent audit activity</h3><p>Persistent, hash-linked local ledger · not independently anchored.</p></div><button class="button text-button checkpoint-button" id="checkpoint-btn" type="button">Export head checkpoint</button><div class="chain-status" id="chain-status"><i></i> Verifying chain</div></div><div class="audit-table-wrap"><table><thead><tr><th>EVENT</th><th>DETAIL</th><th>TIME</th><th>CHAIN</th></tr></thead><tbody id="audit-rows"><tr><td colspan="4" class="empty-row">No activity yet. Encrypt a file or run a simulation to create an event.</td></tr></tbody></table></div><div class="audit-disclaimer">SQLite hash chain detects record edits, deletion, and reorder unless the database is rebuilt; copy ledger roots to a separately controlled system for independent evidence.</div></section>
+        <footer>Sentinel Security Lab <span>·</span> Educational demo only <span>·</span> Keep sensitive files out of presentations</footer>
+      </section>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="{{ url_for('static', filename='merkle.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</body>
+</html>
